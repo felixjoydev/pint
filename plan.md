@@ -814,7 +814,7 @@ export async function getPostBySlug(tenantId: string, slug: string) {
 
 ### Task 2.1: Create Clerk Application
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Set up Clerk application in their dashboard and configure authentication methods.
@@ -846,7 +846,7 @@ CLERK_SECRET_KEY=sk_test_...
 
 ### Task 2.2: Install and Configure Clerk SDK
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Install `@clerk/nextjs` and configure the application.
@@ -896,7 +896,7 @@ export default function RootLayout({
 
 ### Task 2.3: Create Authentication Middleware
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Set up Next.js middleware with Clerk for route protection.
@@ -947,7 +947,7 @@ export const config = {
 
 ### Task 2.4: Create Auth Pages
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create sign-in and sign-up pages using Clerk components.
@@ -986,7 +986,7 @@ export default function SignInPage() {
 
 ### Task 2.5: Set Up Clerk Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create webhook endpoint to handle Clerk events (user created, deleted).
@@ -1067,7 +1067,7 @@ npm install svix
 
 ### Task 2.6: Handle User Created Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Implement user.created webhook handler to create tenant and user.
@@ -1141,7 +1141,7 @@ if (evt.type === 'user.created') {
 
 ### Task 2.7: Handle User Deleted Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Implement user.deleted webhook handler to clean up data.
@@ -1182,7 +1182,7 @@ if (evt.type === 'user.deleted') {
 
 ### Task 2.8: Create Auth Utility Functions
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create helper functions for getting current user and tenant.
