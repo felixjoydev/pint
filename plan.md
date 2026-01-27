@@ -1359,9 +1359,215 @@ Complete the redirect logic to ensure:
 
 ---
 
-## Phase 4-17: [Additional Phases]
+## Phase 4: Core API Routes
 
-> **Note:** Phases 4-17 follow the same detailed structure. Each task includes:
+**Context:** Implement CRUD API routes for posts, pages, widgets, and settings. Create Zod validation schemas, standardized error handling, slug generation, and comprehensive test coverage.
+
+**Dependencies:** Phase 3 complete
+
+**Branch:** `feature/core-api-routes`
+
+---
+
+### Task 4.0: Test Setup (Prerequisites)
+
+**Status:** ✅ Done
+
+**Description:**
+Set up Vitest testing framework with mocks for Clerk auth and Prisma client.
+
+**Files Created:**
+- `vitest.config.ts` - Vitest configuration with path aliases
+- `src/test/setup.ts` - Test setup file with Clerk mocks
+- `src/test/utils.ts` - Test utilities (mock tenant, mock user, mock prisma)
+
+**Scripts Added:**
+- `npm run test` - Run tests in watch mode
+- `npm run test:run` - Run tests once
+- `npm run test:coverage` - Run tests with coverage report
+
+---
+
+### Task 4.1: Zod Validation Schemas
+
+**Status:** ✅ Done
+
+**Description:**
+Create Zod validation schemas for all API inputs (posts, pages, widgets, settings).
+
+**Files Created:**
+- `src/lib/validations/post.ts` - createPostSchema, updatePostSchema
+- `src/lib/validations/page.ts` - createPageSchema, updatePageSchema
+- `src/lib/validations/widget.ts` - updateWidgetSchema, updateWidgetOrderSchema
+- `src/lib/validations/settings.ts` - updateSettingsSchema
+- `src/lib/validations/__tests__/post.test.ts`
+- `src/lib/validations/__tests__/page.test.ts`
+- `src/lib/validations/__tests__/widget.test.ts`
+- `src/lib/validations/__tests__/settings.test.ts`
+
+**Tests:** 52 passing
+
+---
+
+### Task 4.2: API Error Handling
+
+**Status:** ✅ Done
+
+**Description:**
+Create standardized error handling with custom error classes and response utilities.
+
+**Files Created:**
+- `src/lib/api/errors.ts` - ApiError, NotFoundError, ValidationError, UnauthorizedError, ForbiddenError, ConflictError, TierLimitError, PostLimitError
+- `src/lib/api/response.ts` - successResponse, createdResponse, noContentResponse, errorResponse, handleApiError
+- `src/lib/api/__tests__/errors.test.ts`
+- `src/lib/api/__tests__/response.test.ts`
+
+**Tests:** 30 passing
+
+---
+
+### Task 4.3: Slug Generation
+
+**Status:** ✅ Done
+
+**Description:**
+Create URL-safe slug generation with uniqueness enforcement per tenant.
+
+**Files Created:**
+- `src/lib/utils/slug.ts` - generateSlug, ensureUniquePostSlug, ensureUniquePageSlug
+- `src/lib/utils/__tests__/slug.test.ts`
+
+**Tests:** 28 passing
+
+---
+
+### Task 4.4-4.6: Posts API
+
+**Status:** ✅ Done
+
+**Description:**
+Implement full CRUD for posts with publish/unpublish actions and tier-based limits.
+
+**Files Created:**
+- `src/app/api/posts/route.ts` - GET (list), POST (create)
+- `src/app/api/posts/[id]/route.ts` - GET, PATCH, DELETE
+- `src/app/api/posts/[id]/publish/route.ts` - POST (publish/unpublish)
+- `src/app/api/posts/__tests__/route.test.ts`
+- `src/app/api/posts/[id]/__tests__/route.test.ts`
+- `src/app/api/posts/[id]/publish/__tests__/route.test.ts`
+
+**Features:**
+- List posts with status filter
+- Create post with auto-slug generation
+- Update post with slug uniqueness check
+- Delete post
+- Publish/unpublish with publishedAt tracking
+- 50 post limit for free tier
+
+**Tests:** 39 passing
+
+---
+
+### Task 4.7-4.8: Pages API
+
+**Status:** ✅ Done
+
+**Description:**
+Implement full CRUD for static pages with nav order management.
+
+**Files Created:**
+- `src/app/api/pages/route.ts` - GET (list), POST (create)
+- `src/app/api/pages/[id]/route.ts` - GET, PATCH, DELETE
+- `src/app/api/pages/__tests__/route.test.ts`
+- `src/app/api/pages/[id]/__tests__/route.test.ts`
+
+**Features:**
+- List pages ordered by navOrder
+- Create page with auto-slug and auto-navOrder
+- Update page including showInNav and navOrder
+- Delete page
+
+**Tests:** 24 passing
+
+---
+
+### Task 4.9: Widgets API
+
+**Status:** ✅ Done
+
+**Description:**
+Implement widget listing and ordering APIs with bulk update support.
+
+**Files Created:**
+- `src/app/api/widgets/route.ts` - GET (list), PATCH (bulk order update)
+- `src/app/api/widgets/[id]/route.ts` - PATCH (single update)
+- `src/app/api/widgets/__tests__/route.test.ts`
+- `src/app/api/widgets/[id]/__tests__/route.test.ts`
+
+**Features:**
+- List widgets ordered by displayOrder
+- Bulk update widget order with $transaction
+- Update single widget enabled/config/displayOrder
+- Tenant isolation for all operations
+
+**Tests:** 15 passing
+
+---
+
+### Task 4.10: Settings API
+
+**Status:** ✅ Done
+
+**Description:**
+Implement tenant settings GET and PATCH with tier-based restrictions.
+
+**Files Created:**
+- `src/app/api/settings/route.ts` - GET, PATCH
+- `src/app/api/settings/__tests__/route.test.ts`
+
+**Features:**
+- Get current tenant settings
+- Update settings with merge
+- Tier-based restrictions (SEO settings require Pro+)
+- Returns tier with settings for client-side feature checks
+
+**Tests:** 14 passing
+
+---
+
+### Phase 4 Summary
+
+**API Endpoints Implemented:**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/posts` | GET | List posts (filter by status) |
+| `/api/posts` | POST | Create post (auto-slug, 50 limit for free) |
+| `/api/posts/[id]` | GET | Get single post |
+| `/api/posts/[id]` | PATCH | Update post |
+| `/api/posts/[id]` | DELETE | Delete post |
+| `/api/posts/[id]/publish` | POST | Publish/unpublish |
+| `/api/pages` | GET | List pages (ordered by navOrder) |
+| `/api/pages` | POST | Create page (auto-slug, auto-navOrder) |
+| `/api/pages/[id]` | GET | Get single page |
+| `/api/pages/[id]` | PATCH | Update page |
+| `/api/pages/[id]` | DELETE | Delete page |
+| `/api/widgets` | GET | List widgets |
+| `/api/widgets` | PATCH | Bulk update order |
+| `/api/widgets/[id]` | PATCH | Update single widget |
+| `/api/settings` | GET | Get tenant settings |
+| `/api/settings` | PATCH | Update settings (tier restrictions) |
+
+**Test Results:**
+- 15 test files
+- 202 tests passing
+- TypeScript: ✅ No errors
+- ESLint: ✅ No errors
+
+---
+
+## Phase 5-17: [Additional Phases]
+
+> **Note:** Phases 5-17 follow the same detailed structure. Each task includes:
 > - Status marker
 > - Description
 > - Context explaining why
@@ -1370,7 +1576,6 @@ Complete the redirect logic to ensure:
 > - Verification steps
 
 **Remaining Phases:**
-- Phase 4: Core API Routes
 - Phase 5: Media Storage (Cloudflare R2)
 - Phase 6: UI Component Library
 - Phase 7: Tiptap Editor

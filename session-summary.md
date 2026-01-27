@@ -8,9 +8,9 @@
 
 ## Current Status
 
-- **Branch:** `feature/multi-tenancy`
-- **Phase:** Phase 3 Complete - Ready for Phase 4
-- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3
+- **Branch:** `feature/core-api-routes`
+- **Phase:** Phase 4 Complete - Ready for Phase 5
+- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4
 
 ---
 
@@ -27,207 +27,163 @@
 ### Phase 1: Database & ORM Setup (PR #1 - Merged)
 - Neon PostgreSQL database configured
 - Prisma ORM installed and configured
-- Complete database schema implemented:
-  - Enums: `Tier`, `PostStatus`, `PageStatus`, `WallOfLoveStatus`
-  - Models: `Tenant`, `User`, `Post`, `Page`, `Widget`, `Like`, `WallOfLove`, `Subscriber`, `MediaFile`, `ApiKey`, `PageView`
-- Database utility functions created:
-  - `src/lib/db/queries/tenants.ts`
-  - `src/lib/db/queries/posts.ts`
-  - `src/lib/db/queries/pages.ts`
-  - `src/lib/db/mutations/posts.ts`
-  - `src/lib/db/mutations/pages.ts`
+- Complete database schema implemented
+- Database utility functions created
 
 ### Phase 2: Authentication with Clerk (PR #2 - Merged)
 - Clerk SDK installed and configured
 - Authentication middleware with route protection
 - Sign-in and sign-up pages created
 - Webhook endpoint with svix signature verification
-- User created handler (creates User in DB, no tenant yet)
-- User deleted handler (deletes User and Tenant if exists)
-- Auth utilities:
-  - `src/lib/auth/tenant.ts` - getCurrentUser, requireUser, getCurrentTenant, requireTenant, hasCompletedOnboarding
-  - `src/lib/auth/permissions.ts` - Tier-based feature permissions
+- Auth utilities for user/tenant resolution
 
-### Phase 3: Multi-Tenancy & Routing (Current Branch - Ready for PR)
-- **Task 3.1:** Tenant Resolution Utilities
-- **Task 3.2:** Subdomain Routing Middleware
-- **Task 3.3:** Onboarding Page & Form
-- **Task 3.4:** Onboarding API Endpoints
-- **Task 3.5:** Public Blog Route Structure
-- **Task 3.6:** Onboarding Redirect Logic
+### Phase 3: Multi-Tenancy & Routing (PR #3 - Merged)
+- Tenant resolution utilities
+- Subdomain routing middleware
+- Onboarding page & form
+- Public blog route structure
 
----
-
-## Phase 3 Implementation Details
-
-### Tenant Resolution (`src/lib/tenant/`)
-Created utilities for multi-tenancy:
-
-```
-src/lib/tenant/
-├── constants.ts  - Reserved subdomains list, ROOT_DOMAIN config
-├── resolve.ts    - Tenant resolution functions
-└── index.ts      - Exports
-```
-
-**Key Functions:**
-- `extractSubdomain(hostname)` - Parses subdomain from hostname
-- `resolveTenantFromSubdomain(subdomain)` - Database lookup for tenant
-- `resolveTenantFromCustomDomain(domain)` - Custom domain resolution
-- `resolveTenant(hostname)` - Combined resolution (subdomain + custom domain)
-- `isSubdomainValid(subdomain)` - Format validation
-- `checkSubdomainAvailability(subdomain)` - DB availability check
-
-### Subdomain Routing in Middleware (`src/middleware.ts`)
-The middleware handles:
-
-1. **Subdomain Detection:**
-   - Production: Parses from hostname (e.g., `myblog.pint.im` → `myblog`)
-   - Development: Supports `?subdomain=myblog` query param for easier testing
-
-2. **URL Rewriting:**
-   - Subdomain requests are rewritten to `/(blog)/[subdomain]/...`
-   - Example: `myblog.pint.im/my-post` → `/(blog)/myblog/my-post`
-   - Sets `x-tenant-subdomain` header for downstream use
-
-3. **Route Protection:**
-   - Public routes: `/`, `/sign-in`, `/sign-up`, `/api/webhooks`, `/api/likes`, `/api/subscribe`, `/api/onboarding`, `/api/auth`
-   - Protected routes require Clerk authentication
-
-4. **API Routes Exemption:**
-   - API routes skip subdomain rewriting (handled via route handlers)
-
-### Onboarding System
-
-**Flow:**
-1. User signs up via Clerk → User created with `tenantId: null`
-2. User visits `/dashboard` → Redirected to `/onboarding`
-3. Onboarding form collects blog name + subdomain
-4. Real-time availability check via `/api/onboarding/check-subdomain`
-5. Form submission to `/api/onboarding/complete`:
-   - Creates Tenant record
-   - Links User to Tenant
-   - Sets `onboardingComplete: true`
-   - Creates default widgets
-6. User redirected to `/dashboard`
-
-**Files Created:**
-- `src/lib/validations/onboarding.ts` - Zod schema for form validation
-- `src/components/onboarding/onboarding-form.tsx` - React Hook Form client component
-- `src/app/(dashboard)/onboarding/page.tsx` - Onboarding page (server component)
-- `src/app/api/onboarding/check-subdomain/route.ts` - GET endpoint for availability
-- `src/app/api/onboarding/complete/route.ts` - POST endpoint to create tenant
-
-### Public Blog Routes (`src/app/(blog)/`)
-
-```
-src/app/(blog)/
-├── layout.tsx                    - Root blog layout (passthrough)
-└── [subdomain]/
-    ├── layout.tsx                - Subdomain layout (resolves tenant, 404 if not found)
-    ├── page.tsx                  - Blog home (lists published posts)
-    └── [slug]/
-        └── page.tsx              - Post page (renders individual post)
-```
-
-**Features:**
-- Tenant resolution in layout (single DB query)
-- 404 for non-existent subdomains
-- 404 for non-existent or unpublished posts
-- Blog header with title from tenant settings
-
-### Dashboard Protection (`src/app/(dashboard)/dashboard/page.tsx`)
-- Checks authentication via Clerk
-- Checks onboarding status via `getCurrentUser()`
-- Redirects to `/sign-in` if not authenticated
-- Redirects to `/onboarding` if not onboarded
-- Shows loading state while user record is being created (webhook delay)
-
-### API Endpoints Created
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/onboarding/check-subdomain` | GET | Real-time subdomain availability check |
-| `/api/onboarding/complete` | POST | Create tenant, link user, create widgets |
-| `/api/auth/onboarding-status` | GET | Returns onboarding status for middleware |
+### Phase 4: Core API Routes (Current Branch - Ready for PR)
+- **Test Setup:** Vitest configured with 202 passing tests
+- **Validation Schemas:** Zod schemas for posts, pages, widgets, settings
+- **Error Handling:** Standardized API errors and response utilities
+- **Slug Generation:** URL-safe slug utilities with uniqueness checks
+- **Posts API:** Full CRUD + publish/unpublish, 50 post limit for free tier
+- **Pages API:** Full CRUD with navOrder management
+- **Widgets API:** List, single update, bulk order update
+- **Settings API:** Get/update with tier-based restrictions
 
 ---
 
-## Key Architecture Decisions
+## Phase 4 Implementation Details
 
-### Onboarding Flow (Deferred Tenant Creation)
-The User model supports deferred onboarding:
+### Test Infrastructure
 
-```prisma
-model User {
-  id                 String   @id @default(uuid())
-  tenantId           String?  @map("tenant_id")  // NULLABLE - set during onboarding
-  clerkId            String   @unique @map("clerk_id")
-  email              String
-  onboardingComplete Boolean  @default(false) @map("onboarding_complete")
-  createdAt          DateTime @default(now()) @map("created_at")
-  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  @@index([tenantId])
-  @@map("users")
-}
+```
+vitest.config.ts           - Vitest configuration
+src/test/setup.ts          - Test setup with Clerk mocks
+src/test/utils.ts          - Mock tenant, user, and prisma utilities
 ```
 
-**Reasoning:** Clerk doesn't collect subdomain at signup. We collect it during onboarding so users can choose their blog URL.
+**Test Scripts:**
+- `npm run test` - Watch mode
+- `npm run test:run` - Single run
+- `npm run test:coverage` - Coverage report
 
-### API Route Auth Pattern
-API routes like `/api/onboarding/*` and `/api/auth/*` are marked as "public" in middleware to bypass Clerk's HTML redirect. Authentication is handled in the route handlers themselves using `await auth()`.
+### Validation Schemas (`src/lib/validations/`)
 
-### Development Testing
-For local development without subdomain DNS setup:
-- Use `?subdomain=myblog` query parameter
-- Example: `http://localhost:3000/?subdomain=myblog` renders myblog's homepage
+| File | Schemas |
+|------|---------|
+| `post.ts` | createPostSchema, updatePostSchema |
+| `page.ts` | createPageSchema, updatePageSchema |
+| `widget.ts` | updateWidgetSchema, updateWidgetOrderSchema |
+| `settings.ts` | updateSettingsSchema |
+
+### API Error Handling (`src/lib/api/`)
+
+**Error Classes:**
+- `ApiError` - Base error class
+- `NotFoundError` - 404 errors
+- `ValidationError` - 400 with details
+- `UnauthorizedError` - 401
+- `ForbiddenError` - 403
+- `TierLimitError` - Feature restrictions
+- `PostLimitError` - Free tier limit
+
+**Response Utilities:**
+- `successResponse(data, status)` - Standard success
+- `createdResponse(data)` - 201 Created
+- `noContentResponse()` - 204 No Content
+- `errorResponse(error)` - Format ApiError
+- `handleApiError(error)` - Catch-all handler
+
+### Slug Utilities (`src/lib/utils/slug.ts`)
+
+- `generateSlug(title)` - URL-safe slug from title
+- `ensureUniquePostSlug(slug, tenantId, excludeId?)` - Unique slug for posts
+- `ensureUniquePageSlug(slug, tenantId, excludeId?)` - Unique slug for pages
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/posts` | GET | List posts (filter by status) |
+| `/api/posts` | POST | Create post (auto-slug, 50 limit for free) |
+| `/api/posts/[id]` | GET | Get single post |
+| `/api/posts/[id]` | PATCH | Update post |
+| `/api/posts/[id]` | DELETE | Delete post |
+| `/api/posts/[id]/publish` | POST | Publish/unpublish |
+| `/api/pages` | GET | List pages (ordered by navOrder) |
+| `/api/pages` | POST | Create page (auto-slug, auto-navOrder) |
+| `/api/pages/[id]` | GET | Get single page |
+| `/api/pages/[id]` | PATCH | Update page |
+| `/api/pages/[id]` | DELETE | Delete page |
+| `/api/widgets` | GET | List widgets |
+| `/api/widgets` | PATCH | Bulk update order |
+| `/api/widgets/[id]` | PATCH | Update single widget |
+| `/api/settings` | GET | Get tenant settings |
+| `/api/settings` | PATCH | Update settings (tier restrictions) |
+
+### Key Features
+
+1. **Tenant Isolation:** All queries include `tenantId` filter
+2. **Tier-Based Restrictions:**
+   - Free tier: 50 post limit
+   - Pro/Max: Unlimited posts
+   - Settings like SEO require Pro+
+3. **Auto Slug Generation:** Falls back to title if not provided
+4. **Unique Slug Enforcement:** Appends -2, -3, etc. if exists
+5. **Publish Tracking:** `publishedAt` set on first publish only
+6. **Transaction Support:** Widget bulk order uses `$transaction`
+
+---
+
+## Test Results
+
+- **15 test files**
+- **202 tests passing**
+- TypeScript: ✅ No errors
+- ESLint: ✅ No errors
 
 ---
 
 ## Key Files Reference
 
-### Configuration
-- `prisma/schema.prisma` - Complete database schema
-- `src/middleware.ts` - Clerk middleware with subdomain routing
-- `src/app/layout.tsx` - Root layout with ClerkProvider
-- `.env.example` - Environment variable documentation
+### Phase 4 Files
 
-### Tenant Resolution
-- `src/lib/tenant/constants.ts` - Reserved subdomains, ROOT_DOMAIN
-- `src/lib/tenant/resolve.ts` - Resolution functions
-- `src/lib/tenant/index.ts` - Exports
+```
+# Test Setup
+vitest.config.ts
+src/test/setup.ts
+src/test/utils.ts
 
-### Auth Pages
-- `src/app/(auth)/sign-in/[[...sign-in]]/page.tsx`
-- `src/app/(auth)/sign-up/[[...sign-up]]/page.tsx`
-- `src/app/(auth)/layout.tsx`
+# Validation Schemas
+src/lib/validations/post.ts
+src/lib/validations/page.ts
+src/lib/validations/widget.ts
+src/lib/validations/settings.ts
 
-### Onboarding
-- `src/app/(dashboard)/onboarding/page.tsx` - Onboarding page
-- `src/components/onboarding/onboarding-form.tsx` - Form component
-- `src/lib/validations/onboarding.ts` - Zod schema
-- `src/app/api/onboarding/check-subdomain/route.ts`
-- `src/app/api/onboarding/complete/route.ts`
+# API Utilities
+src/lib/api/errors.ts
+src/lib/api/response.ts
+src/lib/utils/slug.ts
 
-### Public Blog
-- `src/app/(blog)/[subdomain]/layout.tsx` - Tenant resolution
-- `src/app/(blog)/[subdomain]/page.tsx` - Blog home
-- `src/app/(blog)/[subdomain]/[slug]/page.tsx` - Post page
+# API Routes
+src/app/api/posts/route.ts
+src/app/api/posts/[id]/route.ts
+src/app/api/posts/[id]/publish/route.ts
+src/app/api/pages/route.ts
+src/app/api/pages/[id]/route.ts
+src/app/api/widgets/route.ts
+src/app/api/widgets/[id]/route.ts
+src/app/api/settings/route.ts
 
-### Dashboard
-- `src/app/(dashboard)/dashboard/page.tsx` - Main dashboard
-
-### Webhooks
-- `src/app/api/webhooks/clerk/route.ts` - Clerk webhook handler
-
-### Auth Utilities
-- `src/lib/auth/tenant.ts` - User/Tenant resolution functions
-- `src/lib/auth/permissions.ts` - Tier-based permissions
-
-### Database
-- `src/lib/db/prisma.ts` - Prisma client singleton
-- `src/lib/db/queries/*.ts` - Read operations
-- `src/lib/db/mutations/*.ts` - Write operations
+# Tests (15 files)
+src/lib/validations/__tests__/*.test.ts
+src/lib/api/__tests__/*.test.ts
+src/lib/utils/__tests__/*.test.ts
+src/app/api/*/__tests__/*.test.ts
+```
 
 ---
 
@@ -244,19 +200,24 @@ CLERK_WEBHOOK_SECRET=whsec_...
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_ROOT_DOMAIN=pint.im   # Added in Phase 3
+NEXT_PUBLIC_ROOT_DOMAIN=pint.im
 ```
 
 ---
 
-## Testing Notes
+## Commands
 
-- **Local Subdomain Testing:** Use `?subdomain=myblog` query param
-- **Webhooks:** Use ngrok for local testing (`ngrok http 3000`)
-- **Database:** Use Prisma Studio (`npx prisma studio`) to inspect data
-- **Auth:** Test both email and Google OAuth flows
-- **User deletion:** Delete from Clerk dashboard to test cascade
-- **Onboarding:** Create new Clerk user to test full flow
+```bash
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run lint         # ESLint
+npm run typecheck    # TypeScript check
+npm run test         # Run tests (watch mode)
+npm run test:run     # Run tests (single)
+npx prisma db push   # Push schema changes
+npx prisma generate  # Regenerate client
+npx prisma studio    # Database GUI
+```
 
 ---
 
@@ -269,31 +230,10 @@ NEXT_PUBLIC_ROOT_DOMAIN=pint.im   # Added in Phase 3
 
 ---
 
-## Next Phase: Phase 4 - Core API Routes
+## Next Phase: Phase 5
 
-The next phase will implement:
-- CRUD API routes for posts
-- CRUD API routes for pages
-- CRUD API routes for widgets
-- API validation and error handling
-- Server actions where appropriate
-
-See `plan-phase-4.md` for detailed task breakdown.
+See `plan.md` for Phase 5 task breakdown.
 
 ---
 
-## Commands
-
-```bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run lint         # ESLint
-npm run typecheck    # TypeScript check
-npx prisma db push   # Push schema changes
-npx prisma generate  # Regenerate client
-npx prisma studio    # Database GUI
-```
-
----
-
-*To resume: Start with "Continue from session-summary.md - Phase 4"*
+*To resume: Start with "Continue from session-summary.md - Phase 5"*
