@@ -1565,9 +1565,166 @@ Implement tenant settings GET and PATCH with tier-based restrictions.
 
 ---
 
-## Phase 5-17: [Additional Phases]
+## Phase 5: Media Storage (Cloudflare R2)
 
-> **Note:** Phases 5-17 follow the same detailed structure. Each task includes:
+**Context:** Implement media file storage using Cloudflare R2. Users can upload images (for posts, featured images) and audio files (for music player widget). Files are uploaded directly to R2 using presigned URLs, with metadata tracked in the database.
+
+**Dependencies:** Phase 4 Complete
+**Branch:** `feature/media-storage`
+
+---
+
+### Task 5.1: Install R2/S3 Dependencies
+
+**Status:** ✅ Done
+
+**Description:**
+Install AWS SDK v3 for S3-compatible R2 operations and nanoid for generating unique file keys.
+
+**Packages Installed:**
+- `@aws-sdk/client-s3`
+- `@aws-sdk/s3-request-presigner`
+- `nanoid`
+
+---
+
+### Task 5.2: Create R2 Client Configuration
+
+**Status:** ✅ Done
+
+**Description:**
+Create a configured S3 client for Cloudflare R2 with proper credentials and endpoint, plus constants for file type/size validation.
+
+**Files Created:**
+- `src/lib/storage/constants.ts` - MIME types, size limits, helper functions
+- `src/lib/storage/r2.ts` - R2 client singleton, presigned URL generation
+- `src/lib/storage/index.ts` - Export barrel
+- `src/lib/storage/__tests__/constants.test.ts` - 41 tests
+- `src/lib/storage/__tests__/r2.test.ts` - 21 tests
+
+---
+
+### Task 5.3: Create Validation Schemas
+
+**Status:** ✅ Done
+
+**Description:**
+Create Zod validation schemas for upload requests.
+
+**Files Created:**
+- `src/lib/validations/media.ts` - uploadRequestSchema, uploadConfirmSchema, mediaListQuerySchema
+- `src/lib/validations/__tests__/media.test.ts` - 43 tests
+
+---
+
+### Task 5.4: Create Upload API Route
+
+**Status:** ✅ Done
+
+**Description:**
+Create POST `/api/upload` endpoint that generates presigned URLs for direct R2 upload.
+
+**Files Created:**
+- `src/app/api/upload/route.ts` - POST handler
+- `src/app/api/upload/__tests__/route.test.ts` - 11 tests
+
+---
+
+### Task 5.5: Create Upload Confirmation Endpoint
+
+**Status:** ✅ Done
+
+**Description:**
+Create POST `/api/upload/[id]/confirm` endpoint to mark upload as complete and verify file exists in R2.
+
+**Files Created:**
+- `src/app/api/upload/[id]/confirm/route.ts` - POST handler
+- `src/app/api/upload/[id]/confirm/__tests__/route.test.ts` - 10 tests
+
+---
+
+### Task 5.6: Create Media List/Delete API
+
+**Status:** ✅ Done
+
+**Description:**
+Create endpoints for listing media files and deleting them.
+
+**Files Created:**
+- `src/app/api/media/route.ts` - GET (list)
+- `src/app/api/media/[id]/route.ts` - GET, DELETE
+- `src/app/api/media/__tests__/route.test.ts` - 13 tests
+- `src/app/api/media/[id]/__tests__/route.test.ts` - 10 tests
+
+---
+
+### Task 5.7: Update Environment Variables
+
+**Status:** ✅ Done
+
+**Description:**
+Document R2 environment variables in `.env.example`.
+
+**Files Modified:**
+- `.env.example` - Added R2 configuration with comments
+
+---
+
+### Task 5.8: Cloudflare Worker for Image Transformation
+
+**Status:** ✅ Done
+
+**Description:**
+Create a Cloudflare Worker that transforms images on-demand (resize, WebP conversion).
+
+**Files Created:**
+- `workers/image-transform/wrangler.toml`
+- `workers/image-transform/package.json`
+- `workers/image-transform/tsconfig.json`
+- `workers/image-transform/src/index.ts`
+
+**Worker Features:**
+- Resize: `?w=800` (100-2000px)
+- Format: `?f=webp` (webp, jpeg, png)
+- Quality: `?q=80` (1-100)
+- 30-day cache
+
+---
+
+### Phase 5 Infrastructure Setup
+
+**Status:** ✅ Done
+
+**Cloudflare Resources Created:**
+- **R2 Bucket:** `pint-media` (Western Europe region)
+- **Public URL:** `https://pub-4b6ad90498154204ad146660d66cf185.r2.dev`
+- **Worker:** `pint-image-transform.draftmade.workers.dev`
+- **Worker Binding:** `MEDIA_BUCKET` → `pint-media`
+
+---
+
+### Phase 5 Summary
+
+**API Endpoints Implemented:**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/upload` | POST | Get presigned URL for upload |
+| `/api/upload/[id]/confirm` | POST | Confirm upload complete |
+| `/api/media` | GET | List media files (filter by type, paginate) |
+| `/api/media/[id]` | GET | Get single media file |
+| `/api/media/[id]` | DELETE | Delete from R2 and database |
+
+**Test Results:**
+- 22 test files
+- 351 tests passing
+- TypeScript: ✅ No errors
+- ESLint: ✅ No errors
+
+---
+
+## Phase 6-17: [Additional Phases]
+
+> **Note:** Phases 6-17 follow the same detailed structure. Each task includes:
 > - Status marker
 > - Description
 > - Context explaining why
@@ -1576,7 +1733,6 @@ Implement tenant settings GET and PATCH with tier-based restrictions.
 > - Verification steps
 
 **Remaining Phases:**
-- Phase 5: Media Storage (Cloudflare R2)
 - Phase 6: UI Component Library
 - Phase 7: Tiptap Editor
 - Phase 8: Dashboard

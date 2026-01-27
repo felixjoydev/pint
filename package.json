@@ -13,12 +13,18 @@
     "format:check": "prettier --check .",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "worker:dev": "cd workers/image-transform && npm run dev",
+    "worker:deploy": "cd workers/image-transform && npm run deploy",
+    "worker:install": "cd workers/image-transform && npm install"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.975.0",
+    "@aws-sdk/s3-request-presigner": "^3.975.0",
     "@clerk/nextjs": "^6.36.10",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.19.2",
+    "nanoid": "^5.1.6",
     "next": "^14.2.0",
     "prisma": "^6.19.2",
     "react": "^18.3.0",
