@@ -71,13 +71,14 @@ model Tenant {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  tenantId  String   @map("tenant_id")
-  clerkId   String   @unique @map("clerk_id")
-  email     String
-  createdAt DateTime @default(now()) @map("created_at")
+  id                 String   @id @default(uuid())
+  tenantId           String?  @map("tenant_id")
+  clerkId            String   @unique @map("clerk_id")
+  email              String
+  onboardingComplete Boolean  @default(false) @map("onboarding_complete")
+  createdAt          DateTime @default(now()) @map("created_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
   @@map("users")

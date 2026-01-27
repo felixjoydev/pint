@@ -814,7 +814,7 @@ export async function getPostBySlug(tenantId: string, slug: string) {
 
 ### Task 2.1: Create Clerk Application
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Set up Clerk application in their dashboard and configure authentication methods.
@@ -846,7 +846,7 @@ CLERK_SECRET_KEY=sk_test_...
 
 ### Task 2.2: Install and Configure Clerk SDK
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Install `@clerk/nextjs` and configure the application.
@@ -896,7 +896,7 @@ export default function RootLayout({
 
 ### Task 2.3: Create Authentication Middleware
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Set up Next.js middleware with Clerk for route protection.
@@ -947,7 +947,7 @@ export const config = {
 
 ### Task 2.4: Create Auth Pages
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create sign-in and sign-up pages using Clerk components.
