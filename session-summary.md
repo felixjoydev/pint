@@ -8,10 +8,9 @@
 
 ## Current Status
 
-- **Branch:** `feature/media-storage`
-- **Phase:** Phase 5 Complete - PR Ready
-- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
-- **Infrastructure:** R2 bucket + Worker deployed to Cloudflare
+- **Branch:** `feature/ui-components`
+- **Phase:** Phase 6.5 Complete - PR Ready
+- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, Phase 6.5
 
 ---
 
@@ -54,7 +53,7 @@
 - **Widgets API:** List, single update, bulk order update
 - **Settings API:** Get/update with tier-based restrictions
 
-### Phase 5: Media Storage (Complete - Ready for PR)
+### Phase 5: Media Storage (PR #5 - Merged)
 - **Storage Module:** R2 client configuration, presigned URLs, file utilities
 - **Validation Schemas:** uploadRequestSchema, uploadConfirmSchema, mediaListQuerySchema
 - **Upload API:** POST /api/upload - Generate presigned URLs with tenant isolation
@@ -63,121 +62,132 @@
 - **Cloudflare Worker:** Image transformation (resize, format, quality)
 - **149 new tests** (62 storage + 43 validation + 44 API)
 
-**Cloudflare Infrastructure Setup:**
-- **R2 Bucket:** `pint-media` (Western Europe region)
-- **Public URL:** `https://pub-4b6ad90498154204ad146660d66cf185.r2.dev`
-- **Worker:** `pint-image-transform` deployed to `pint-image-transform.draftmade.workers.dev`
-- **Worker Binding:** `MEDIA_BUCKET` → `pint-media`
+### Phase 6: UI Component Library (Complete)
+- **Theme System:** 4 fonts, 6 color themes, light/dark mode
+- **Form Components:** Button, Input, Textarea, Label, Checkbox, Switch, Separator
+- **Overlay Components:** Dialog, AlertDialog, Popover, Tooltip, Select, DropdownMenu
+- **Display Components:** Card, Badge, Avatar, Tabs, Spinner, Skeleton
+- **Toast System:** Toast, Toaster, useToast hook with auto-dismiss
+- **Form Integration:** React Hook Form components with error handling
+- **185 new tests**
+
+### Phase 6.5: UI Component Restyling (Complete - Ready for PR)
+- **Design System:** Minimal, stripped-out aesthetic with 4px grid spacing
+- **Color Updates:** Coral primary (#E86A4C), muted gray (#888888), subtle borders (#f0f0f0)
+- **Button:** Simplified variants, coral primary, rounded-lg
+- **Tabs:** Underline style instead of pill/background
+- **Badge:** Added accent variant for labels like "COMING SOON"
+- **Dialogs/Overlays:** Reduced opacity (50%), minimal shadows
+- **All Components:** Consistent 4px grid spacing, rounded-lg corners
+- **Theme System Preserved:** 4 fonts, 6 color themes still work
 
 ---
 
-## Phase 5 Implementation Details
+## Phase 6 Implementation Details
 
-### Storage Module (`src/lib/storage/`)
-
-```
-constants.ts      - MIME types, size limits, helper functions
-r2.ts            - R2 client singleton, presigned URL generation
-index.ts         - Export barrel
-```
-
-**Constants:**
-- `IMAGE_MIME_TYPES`: jpeg, png, gif, webp
-- `AUDIO_MIME_TYPES`: mp3, wav, ogg
-- `MAX_IMAGE_SIZE`: 10MB
-- `MAX_AUDIO_SIZE`: 50MB
-- `PRESIGNED_URL_EXPIRY`: 10 minutes
-
-**R2 Functions:**
-- `generateStorageKey(tenantId, mimeType)` - Unique key with tenant isolation
-- `generatePresignedUploadUrl(key, mimeType, size)` - Presigned PUT URL
-- `getPublicUrl(key)` - Public URL for stored file
-- `headObject(key)` - Check file exists and get metadata
-- `deleteObject(key)` - Delete file from R2
-- `extractKeyFromUrl(url)` - Extract storage key from public URL
-
-### Validation Schemas (`src/lib/validations/media.ts`)
-
-| Schema | Purpose |
-|--------|---------|
-| `uploadRequestSchema` | Validate filename, mimeType, size for presigned URL request |
-| `uploadConfirmSchema` | Validate optional size for upload confirmation |
-| `mediaListQuerySchema` | Validate type filter, limit, cursor for listing |
-
-### API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/upload` | POST | Get presigned URL for direct R2 upload |
-| `/api/upload/[id]/confirm` | POST | Confirm upload complete, verify in R2 |
-| `/api/media` | GET | List media files (filter by type, paginate) |
-| `/api/media/[id]` | GET | Get single media file |
-| `/api/media/[id]` | DELETE | Delete from R2 and database |
-
-### Cloudflare Worker (`workers/image-transform/`)
+### Theme System (`src/lib/theme/`)
 
 ```
-wrangler.toml    - Worker configuration
-package.json     - Dependencies (wrangler, workers-types)
-tsconfig.json    - TypeScript config
-src/index.ts     - Image transformation logic
+constants.ts      - Font options, color themes, types
+index.ts          - Export barrel
 ```
 
-**Features:**
-- Resize: `?w=800` (100-2000px)
-- Format: `?f=webp` (webp, jpeg, png)
-- Quality: `?q=80` (1-100)
-- 30-day cache
+**Font Options:**
+- serif, sans (default), mono, rounded
 
-**Scripts:**
-- `npm run worker:dev` - Local development
-- `npm run worker:deploy` - Deploy to Cloudflare
-- `npm run worker:install` - Install worker dependencies
+**Color Themes:**
+- default, ocean, forest, sunset, lavender, midnight
+- Each theme has light and dark variants
+
+### Theme Store (`src/stores/theme-store.ts`)
+
+- Zustand store with localStorage persistence
+- Independent setters for font and colorTheme
+- Light/dark/system mode support
+
+### Theme Provider (`src/contexts/theme-provider.tsx`)
+
+- Applies CSS variables on theme change
+- Handles system preference detection
+- Prevents hydration mismatch
+
+### UI Components (`src/components/ui/`)
+
+| Category | Components |
+|----------|------------|
+| Form | Button, Input, Textarea, Label, Checkbox, Switch, Separator |
+| Overlay | Dialog, AlertDialog, Popover, Tooltip, Select, DropdownMenu |
+| Display | Card, Badge, Avatar, Tabs, Spinner, Skeleton |
+| Toast | Toast, Toaster, useToast |
+| Form Integration | Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage |
+
+### Key Features
+
+- **Button:** 6 variants, 4 sizes, loading state, asChild support
+- **Input/Textarea:** Error state, auto-resize option
+- **Dialog/AlertDialog:** Radix primitives with animations
+- **Select/DropdownMenu:** Full keyboard navigation
+- **Toast:** Auto-dismiss, 4 variants, stacking
+- **Form:** React Hook Form integration with automatic error display
 
 ---
 
 ## Test Results
 
-- **22 test files**
-- **351 tests passing**
+- **46 test files**
+- **536 tests passing**
 - TypeScript: ✅ No errors
 - ESLint: ✅ No errors
+- Build: ✅ Success
 
 ---
 
 ## Key Files Reference
 
-### Phase 5 Files
+### Phase 6 Files
 
 ```
-# Storage Module
-src/lib/storage/constants.ts
-src/lib/storage/r2.ts
-src/lib/storage/index.ts
-src/lib/storage/__tests__/constants.test.ts
-src/lib/storage/__tests__/r2.test.ts
+# Theme System
+src/lib/theme/constants.ts
+src/lib/theme/index.ts
+src/stores/theme-store.ts
+src/contexts/theme-provider.tsx
+src/hooks/use-theme.ts
 
-# Validation Schemas
-src/lib/validations/media.ts
-src/lib/validations/__tests__/media.test.ts
+# Utilities
+src/lib/utils/cn.ts
 
-# API Routes
-src/app/api/upload/route.ts
-src/app/api/upload/[id]/confirm/route.ts
-src/app/api/media/route.ts
-src/app/api/media/[id]/route.ts
+# UI Components
+src/components/ui/button.tsx
+src/components/ui/input.tsx
+src/components/ui/textarea.tsx
+src/components/ui/label.tsx
+src/components/ui/checkbox.tsx
+src/components/ui/switch.tsx
+src/components/ui/separator.tsx
+src/components/ui/dialog.tsx
+src/components/ui/alert-dialog.tsx
+src/components/ui/popover.tsx
+src/components/ui/tooltip.tsx
+src/components/ui/select.tsx
+src/components/ui/dropdown-menu.tsx
+src/components/ui/card.tsx
+src/components/ui/badge.tsx
+src/components/ui/avatar.tsx
+src/components/ui/tabs.tsx
+src/components/ui/spinner.tsx
+src/components/ui/skeleton.tsx
+src/components/ui/toast.tsx
+src/components/ui/toaster.tsx
+src/components/ui/use-toast.ts
+src/components/ui/form.tsx
+src/components/ui/index.ts
 
-# API Tests
-src/app/api/upload/__tests__/route.test.ts
-src/app/api/upload/[id]/confirm/__tests__/route.test.ts
-src/app/api/media/__tests__/route.test.ts
-src/app/api/media/[id]/__tests__/route.test.ts
-
-# Cloudflare Worker
-workers/image-transform/wrangler.toml
-workers/image-transform/package.json
-workers/image-transform/tsconfig.json
-workers/image-transform/src/index.ts
+# Tests
+src/lib/utils/__tests__/cn.test.ts
+src/stores/__tests__/theme-store.test.ts
+src/hooks/__tests__/use-theme.test.tsx
+src/components/ui/__tests__/*.test.tsx (21 test files)
 ```
 
 ---
@@ -237,12 +247,12 @@ npm run worker:deploy   # Deploy worker to Cloudflare
 
 ---
 
-## Next Phase: Phase 6 - UI Component Library
+## Next Phase: Phase 7 - Tiptap Editor
 
-See `plan.md` for Phase 6 task breakdown.
+See `plan.md` for Phase 7 task breakdown.
 
-**Phase 5 PR:** Ready to merge after review.
+**Phase 6.5 PR:** Ready to merge after review.
 
 ---
 
-*To resume: Start with "Continue from session-summary.md - Phase 6"*
+*To resume: Start with "Continue from session-summary.md - Phase 7"*

@@ -1,0 +1,27 @@
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { Separator } from '../separator'
+
+describe('Separator', () => {
+  it('renders horizontal by default', () => {
+    render(<Separator data-testid="separator" />)
+    const separator = screen.getByTestId('separator')
+    expect(separator).toHaveClass('h-[1px]', 'w-full')
+  })
+
+  it('renders vertical when orientation is vertical', () => {
+    render(<Separator orientation="vertical" data-testid="separator" />)
+    const separator = screen.getByTestId('separator')
+    expect(separator).toHaveClass('h-full', 'w-[1px]')
+  })
+
+  it('merges custom className', () => {
+    render(<Separator className="custom-class" data-testid="separator" />)
+    expect(screen.getByTestId('separator')).toHaveClass('custom-class')
+  })
+
+  it('is decorative by default', () => {
+    render(<Separator data-testid="separator" />)
+    expect(screen.getByTestId('separator')).toHaveAttribute('data-orientation', 'horizontal')
+  })
+})

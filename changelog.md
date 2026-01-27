@@ -14,6 +14,74 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ---
 
+## [0.6.5] - 2026-01-27
+
+### Changed
+- Restyled all UI components to minimal, stripped-out design aesthetic
+  - Coral primary color (`#E86A4C`) for buttons, links, accents
+  - Muted gray (`#888888`) for secondary text
+  - Very subtle borders (`#f0f0f0`)
+  - 4px grid spacing system for all components
+  - `rounded-lg` (8px) corners consistently
+- Button component: simplified variants, coral primary, no heavy focus rings
+- Tabs component: underline style instead of pill/background
+- Input/Textarea: thinner borders, focus shows border color change
+- Switch/Checkbox: coral when checked
+- Card: removed shadow
+- Dialog/AlertDialog: reduced overlay opacity to 50%
+- Popover: lighter shadow (`shadow-sm`)
+- Toast: success variant uses primary color instead of green
+- Spinner: uses primary color
+- Skeleton: uses border color for lighter pulse
+
+### Added
+- Badge `accent` variant for labels like "COMING SOON" (coral text, no background, uppercase)
+
+### Fixed
+- Updated 7 test files to match new styling expectations
+
+---
+
+## [0.6.0] - 2026-01-27
+
+### Added
+- Comprehensive UI component library using Radix Primitives
+  - Form components: `Button`, `Input`, `Textarea`, `Label`, `Checkbox`, `Switch`, `Separator`
+  - Overlay components: `Dialog`, `AlertDialog`, `Popover`, `Tooltip`, `Select`, `DropdownMenu`
+  - Display components: `Card`, `Badge`, `Avatar`, `Tabs`, `Spinner`, `Skeleton`
+  - Toast system: `Toast`, `Toaster`, `useToast` hook with auto-dismiss
+  - Form integration: React Hook Form components with error handling
+- Theme system with independent font and color selection
+  - 4 font options: serif, sans, mono, rounded
+  - 6 color themes: default, ocean, forest, sunset, lavender, midnight
+  - Light/dark mode with system preference detection
+  - Zustand store for theme state with localStorage persistence
+  - `ThemeProvider` component with CSS variable injection
+  - `useTheme()` hook for theme access in components
+- Utility functions
+  - `cn()` - Tailwind class merging utility (clsx + tailwind-merge)
+- Component variants using class-variance-authority (CVA)
+- Barrel exports (`src/components/ui/index.ts`)
+- 185 new component tests
+- Total: 536 tests passing
+
+### Dependencies
+- `@radix-ui/react-*` - 14 Radix UI primitives
+- `class-variance-authority` - Component variants
+- `clsx` + `tailwind-merge` - Class merging
+- `zustand` - State management
+- `framer-motion` - Animations
+- `lucide-react` - Icons
+- `happy-dom` - Test environment
+- `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`
+
+### Changed
+- Updated `vitest.config.ts` with happy-dom environment for component tests
+- Updated `globals.css` with theme CSS variables and animation utilities
+- Updated `layout.tsx` to wrap app with `ThemeProvider`
+
+---
+
 ## [0.5.0] - 2026-01-27
 
 ### Added
