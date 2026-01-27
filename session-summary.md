@@ -8,9 +8,10 @@
 
 ## Current Status
 
-- **Branch:** `feature/core-api-routes`
-- **Phase:** Phase 4 Complete - Ready for Phase 5
-- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4
+- **Branch:** `feature/media-storage`
+- **Phase:** Phase 5 Complete - PR Ready
+- **Phases Completed:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
+- **Infrastructure:** R2 bucket + Worker deployed to Cloudflare
 
 ---
 
@@ -43,7 +44,7 @@
 - Onboarding page & form
 - Public blog route structure
 
-### Phase 4: Core API Routes (Current Branch - Ready for PR)
+### Phase 4: Core API Routes (PR #4 - Merged)
 - **Test Setup:** Vitest configured with 202 passing tests
 - **Validation Schemas:** Zod schemas for posts, pages, widgets, settings
 - **Error Handling:** Standardized API errors and response utilities
@@ -53,95 +54,92 @@
 - **Widgets API:** List, single update, bulk order update
 - **Settings API:** Get/update with tier-based restrictions
 
+### Phase 5: Media Storage (Complete - Ready for PR)
+- **Storage Module:** R2 client configuration, presigned URLs, file utilities
+- **Validation Schemas:** uploadRequestSchema, uploadConfirmSchema, mediaListQuerySchema
+- **Upload API:** POST /api/upload - Generate presigned URLs with tenant isolation
+- **Confirmation API:** POST /api/upload/[id]/confirm - Verify upload complete
+- **Media API:** List, get, delete media files with pagination
+- **Cloudflare Worker:** Image transformation (resize, format, quality)
+- **149 new tests** (62 storage + 43 validation + 44 API)
+
+**Cloudflare Infrastructure Setup:**
+- **R2 Bucket:** `pint-media` (Western Europe region)
+- **Public URL:** `https://pub-4b6ad90498154204ad146660d66cf185.r2.dev`
+- **Worker:** `pint-image-transform` deployed to `pint-image-transform.draftmade.workers.dev`
+- **Worker Binding:** `MEDIA_BUCKET` → `pint-media`
+
 ---
 
-## Phase 4 Implementation Details
+## Phase 5 Implementation Details
 
-### Test Infrastructure
+### Storage Module (`src/lib/storage/`)
 
 ```
-vitest.config.ts           - Vitest configuration
-src/test/setup.ts          - Test setup with Clerk mocks
-src/test/utils.ts          - Mock tenant, user, and prisma utilities
+constants.ts      - MIME types, size limits, helper functions
+r2.ts            - R2 client singleton, presigned URL generation
+index.ts         - Export barrel
 ```
 
-**Test Scripts:**
-- `npm run test` - Watch mode
-- `npm run test:run` - Single run
-- `npm run test:coverage` - Coverage report
+**Constants:**
+- `IMAGE_MIME_TYPES`: jpeg, png, gif, webp
+- `AUDIO_MIME_TYPES`: mp3, wav, ogg
+- `MAX_IMAGE_SIZE`: 10MB
+- `MAX_AUDIO_SIZE`: 50MB
+- `PRESIGNED_URL_EXPIRY`: 10 minutes
 
-### Validation Schemas (`src/lib/validations/`)
+**R2 Functions:**
+- `generateStorageKey(tenantId, mimeType)` - Unique key with tenant isolation
+- `generatePresignedUploadUrl(key, mimeType, size)` - Presigned PUT URL
+- `getPublicUrl(key)` - Public URL for stored file
+- `headObject(key)` - Check file exists and get metadata
+- `deleteObject(key)` - Delete file from R2
+- `extractKeyFromUrl(url)` - Extract storage key from public URL
 
-| File | Schemas |
-|------|---------|
-| `post.ts` | createPostSchema, updatePostSchema |
-| `page.ts` | createPageSchema, updatePageSchema |
-| `widget.ts` | updateWidgetSchema, updateWidgetOrderSchema |
-| `settings.ts` | updateSettingsSchema |
+### Validation Schemas (`src/lib/validations/media.ts`)
 
-### API Error Handling (`src/lib/api/`)
-
-**Error Classes:**
-- `ApiError` - Base error class
-- `NotFoundError` - 404 errors
-- `ValidationError` - 400 with details
-- `UnauthorizedError` - 401
-- `ForbiddenError` - 403
-- `TierLimitError` - Feature restrictions
-- `PostLimitError` - Free tier limit
-
-**Response Utilities:**
-- `successResponse(data, status)` - Standard success
-- `createdResponse(data)` - 201 Created
-- `noContentResponse()` - 204 No Content
-- `errorResponse(error)` - Format ApiError
-- `handleApiError(error)` - Catch-all handler
-
-### Slug Utilities (`src/lib/utils/slug.ts`)
-
-- `generateSlug(title)` - URL-safe slug from title
-- `ensureUniquePostSlug(slug, tenantId, excludeId?)` - Unique slug for posts
-- `ensureUniquePageSlug(slug, tenantId, excludeId?)` - Unique slug for pages
+| Schema | Purpose |
+|--------|---------|
+| `uploadRequestSchema` | Validate filename, mimeType, size for presigned URL request |
+| `uploadConfirmSchema` | Validate optional size for upload confirmation |
+| `mediaListQuerySchema` | Validate type filter, limit, cursor for listing |
 
 ### API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/posts` | GET | List posts (filter by status) |
-| `/api/posts` | POST | Create post (auto-slug, 50 limit for free) |
-| `/api/posts/[id]` | GET | Get single post |
-| `/api/posts/[id]` | PATCH | Update post |
-| `/api/posts/[id]` | DELETE | Delete post |
-| `/api/posts/[id]/publish` | POST | Publish/unpublish |
-| `/api/pages` | GET | List pages (ordered by navOrder) |
-| `/api/pages` | POST | Create page (auto-slug, auto-navOrder) |
-| `/api/pages/[id]` | GET | Get single page |
-| `/api/pages/[id]` | PATCH | Update page |
-| `/api/pages/[id]` | DELETE | Delete page |
-| `/api/widgets` | GET | List widgets |
-| `/api/widgets` | PATCH | Bulk update order |
-| `/api/widgets/[id]` | PATCH | Update single widget |
-| `/api/settings` | GET | Get tenant settings |
-| `/api/settings` | PATCH | Update settings (tier restrictions) |
+| `/api/upload` | POST | Get presigned URL for direct R2 upload |
+| `/api/upload/[id]/confirm` | POST | Confirm upload complete, verify in R2 |
+| `/api/media` | GET | List media files (filter by type, paginate) |
+| `/api/media/[id]` | GET | Get single media file |
+| `/api/media/[id]` | DELETE | Delete from R2 and database |
 
-### Key Features
+### Cloudflare Worker (`workers/image-transform/`)
 
-1. **Tenant Isolation:** All queries include `tenantId` filter
-2. **Tier-Based Restrictions:**
-   - Free tier: 50 post limit
-   - Pro/Max: Unlimited posts
-   - Settings like SEO require Pro+
-3. **Auto Slug Generation:** Falls back to title if not provided
-4. **Unique Slug Enforcement:** Appends -2, -3, etc. if exists
-5. **Publish Tracking:** `publishedAt` set on first publish only
-6. **Transaction Support:** Widget bulk order uses `$transaction`
+```
+wrangler.toml    - Worker configuration
+package.json     - Dependencies (wrangler, workers-types)
+tsconfig.json    - TypeScript config
+src/index.ts     - Image transformation logic
+```
+
+**Features:**
+- Resize: `?w=800` (100-2000px)
+- Format: `?f=webp` (webp, jpeg, png)
+- Quality: `?q=80` (1-100)
+- 30-day cache
+
+**Scripts:**
+- `npm run worker:dev` - Local development
+- `npm run worker:deploy` - Deploy to Cloudflare
+- `npm run worker:install` - Install worker dependencies
 
 ---
 
 ## Test Results
 
-- **15 test files**
-- **202 tests passing**
+- **22 test files**
+- **351 tests passing**
 - TypeScript: ✅ No errors
 - ESLint: ✅ No errors
 
@@ -149,40 +147,37 @@ src/test/utils.ts          - Mock tenant, user, and prisma utilities
 
 ## Key Files Reference
 
-### Phase 4 Files
+### Phase 5 Files
 
 ```
-# Test Setup
-vitest.config.ts
-src/test/setup.ts
-src/test/utils.ts
+# Storage Module
+src/lib/storage/constants.ts
+src/lib/storage/r2.ts
+src/lib/storage/index.ts
+src/lib/storage/__tests__/constants.test.ts
+src/lib/storage/__tests__/r2.test.ts
 
 # Validation Schemas
-src/lib/validations/post.ts
-src/lib/validations/page.ts
-src/lib/validations/widget.ts
-src/lib/validations/settings.ts
-
-# API Utilities
-src/lib/api/errors.ts
-src/lib/api/response.ts
-src/lib/utils/slug.ts
+src/lib/validations/media.ts
+src/lib/validations/__tests__/media.test.ts
 
 # API Routes
-src/app/api/posts/route.ts
-src/app/api/posts/[id]/route.ts
-src/app/api/posts/[id]/publish/route.ts
-src/app/api/pages/route.ts
-src/app/api/pages/[id]/route.ts
-src/app/api/widgets/route.ts
-src/app/api/widgets/[id]/route.ts
-src/app/api/settings/route.ts
+src/app/api/upload/route.ts
+src/app/api/upload/[id]/confirm/route.ts
+src/app/api/media/route.ts
+src/app/api/media/[id]/route.ts
 
-# Tests (15 files)
-src/lib/validations/__tests__/*.test.ts
-src/lib/api/__tests__/*.test.ts
-src/lib/utils/__tests__/*.test.ts
-src/app/api/*/__tests__/*.test.ts
+# API Tests
+src/app/api/upload/__tests__/route.test.ts
+src/app/api/upload/[id]/confirm/__tests__/route.test.ts
+src/app/api/media/__tests__/route.test.ts
+src/app/api/media/[id]/__tests__/route.test.ts
+
+# Cloudflare Worker
+workers/image-transform/wrangler.toml
+workers/image-transform/package.json
+workers/image-transform/tsconfig.json
+workers/image-transform/src/index.ts
 ```
 
 ---
@@ -197,6 +192,13 @@ DATABASE_URL=postgresql://...
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 CLERK_WEBHOOK_SECRET=whsec_...
+
+# Storage (Cloudflare R2)
+R2_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=pint-media
+R2_PUBLIC_URL=https://media.pint.im
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -217,6 +219,11 @@ npm run test:run     # Run tests (single)
 npx prisma db push   # Push schema changes
 npx prisma generate  # Regenerate client
 npx prisma studio    # Database GUI
+
+# Worker commands
+npm run worker:install  # Install worker dependencies
+npm run worker:dev      # Run worker locally
+npm run worker:deploy   # Deploy worker to Cloudflare
 ```
 
 ---
@@ -230,10 +237,12 @@ npx prisma studio    # Database GUI
 
 ---
 
-## Next Phase: Phase 5
+## Next Phase: Phase 6 - UI Component Library
 
-See `plan.md` for Phase 5 task breakdown.
+See `plan.md` for Phase 6 task breakdown.
+
+**Phase 5 PR:** Ready to merge after review.
 
 ---
 
-*To resume: Start with "Continue from session-summary.md - Phase 5"*
+*To resume: Start with "Continue from session-summary.md - Phase 6"*

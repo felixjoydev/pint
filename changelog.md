@@ -14,6 +14,51 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ---
 
+## [0.5.0] - 2026-01-27
+
+### Added
+- Media storage with Cloudflare R2 integration
+  - `src/lib/storage/constants.ts` - MIME types, size limits, helper functions
+  - `src/lib/storage/r2.ts` - R2 client singleton, presigned URL generation
+  - `src/lib/storage/index.ts` - Export barrel
+- Media validation schemas (`src/lib/validations/media.ts`)
+  - `uploadRequestSchema` - Validate presigned URL requests (filename, mimeType, size)
+  - `uploadConfirmSchema` - Validate upload confirmation
+  - `mediaListQuerySchema` - Validate list query parameters (type, limit, cursor)
+- Upload API (`/api/upload`)
+  - POST - Generate presigned URL for direct R2 upload
+  - Creates MediaFile record with tenant isolation
+  - Validates file types (images: jpeg, png, gif, webp; audio: mp3, wav, ogg)
+  - Enforces size limits (10MB images, 50MB audio)
+- Upload confirmation API (`/api/upload/[id]/confirm`)
+  - POST - Confirm upload complete and verify file exists in R2
+  - Updates file size from R2 metadata if not provided
+- Media API (`/api/media`)
+  - GET - List media files with type filtering and cursor pagination
+  - GET `/api/media/[id]` - Get single media file
+  - DELETE `/api/media/[id]` - Delete from R2 and database
+- Cloudflare Worker for image transformation (`workers/image-transform/`)
+  - Resize images: `?w=800` (100-2000px)
+  - Convert format: `?f=webp` (webp, jpeg, png)
+  - Quality control: `?q=80` (1-100)
+  - 30-day cache for transformed images
+- Worker scripts in root package.json: `worker:dev`, `worker:deploy`, `worker:install`
+- 149 new tests (62 storage + 43 validation + 44 API tests)
+- Total: 351 tests passing
+
+### Infrastructure
+- Created R2 bucket `pint-media` in Cloudflare (Western Europe region)
+- Enabled Public Development URL: `https://pub-4b6ad90498154204ad146660d66cf185.r2.dev`
+- Deployed `pint-image-transform` worker to `pint-image-transform.draftmade.workers.dev`
+- Configured R2 bucket binding (`MEDIA_BUCKET` → `pint-media`)
+
+### Changed
+- Updated `.env.example` with detailed R2 configuration documentation
+- Updated `tsconfig.json` to exclude `workers/` directory
+- Updated `workers/image-transform/wrangler.toml` with actual R2 public URL
+
+---
+
 ## [0.4.0] - 2026-01-27
 
 ### Added

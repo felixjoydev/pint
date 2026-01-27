@@ -1,0 +1,17 @@
+name = "pint-image-transform"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+R2_PUBLIC_URL = "https://pub-4b6ad90498154204ad146660d66cf185.r2.dev"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "pint-media"
+
+# Uncomment for production deployment
+# [env.production]
+# vars = { R2_PUBLIC_URL = "https://media.pint.im" }
+# [[env.production.r2_buckets]]
+# binding = "MEDIA_BUCKET"
+# bucket_name = "pint-media-prod"
