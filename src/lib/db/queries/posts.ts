@@ -18,6 +18,14 @@ export async function getPublishedPostsByTenant(tenantId: string) {
       status: 'published',
     },
     orderBy: { publishedAt: 'desc' },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      excerpt: true,
+      featuredImage: true,
+      publishedAt: true,
+    },
   })
 }
 
