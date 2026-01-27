@@ -131,3 +131,4 @@ npm run db:studio    # Open Prisma Studio
 
 - [Other] Always plan and get approval before executing any task from plan.md
 - [Test] Complete ALL verification steps in plan.md before marking task as done
+- [Git] Create feature branch before starting work - never commit directly to main
