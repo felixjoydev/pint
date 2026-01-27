@@ -1235,9 +1235,133 @@ export async function requireTenant() {
 
 ---
 
-## Phase 3-17: [Additional Phases]
+## Phase 3: Multi-Tenancy & Routing
 
-> **Note:** Phases 3-17 follow the same detailed structure. Each task includes:
+**Context:** Implement subdomain-based multi-tenancy. Users get `{subdomain}.pint.im` URLs. The middleware handles routing, tenant resolution, and onboarding redirects.
+
+**Dependencies:** Phase 2 complete
+
+---
+
+### Task 3.1: Create Tenant Resolution Utilities
+
+**Status:** ✅ Done
+
+**Description:**
+Create utility functions for resolving tenants from subdomains and custom domains. These are used by middleware and server components.
+
+**Files Created:**
+- `src/lib/tenant/constants.ts` - Reserved subdomains list, ROOT_DOMAIN config
+- `src/lib/tenant/resolve.ts` - Tenant resolution functions
+- `src/lib/tenant/index.ts` - Exports
+
+**Key Functions:**
+- `extractSubdomain(hostname)` - Parses subdomain from hostname
+- `resolveTenantFromSubdomain(subdomain)` - Database lookup for tenant
+- `resolveTenantFromCustomDomain(domain)` - Custom domain resolution
+- `resolveTenant(hostname)` - Combined resolution
+- `isSubdomainValid(subdomain)` - Format validation
+- `checkSubdomainAvailability(subdomain)` - DB availability check
+
+---
+
+### Task 3.2: Update Middleware for Subdomain Routing
+
+**Status:** ✅ Done
+
+**Description:**
+Update the existing Clerk middleware to handle subdomain-based routing, set tenant context in headers, and handle onboarding redirects.
+
+**Files Modified:**
+- `src/middleware.ts` - Added subdomain routing logic
+- `.env.example` - Added `NEXT_PUBLIC_ROOT_DOMAIN`
+
+**Features:**
+- Subdomain extraction from hostname
+- Development fallback via `?subdomain=` query param
+- URL rewriting to `/(blog)/[subdomain]/...`
+- API routes exempted from subdomain rewriting
+- `x-tenant-subdomain` header for downstream use
+
+---
+
+### Task 3.3: Create Onboarding Page & Form
+
+**Status:** ✅ Done
+
+**Description:**
+Create the onboarding page where new users set up their blog (name and subdomain).
+
+**Files Created:**
+- `src/lib/validations/onboarding.ts` - Zod schema for validation
+- `src/components/onboarding/onboarding-form.tsx` - React Hook Form client component
+- `src/app/(dashboard)/onboarding/page.tsx` - Onboarding page
+
+**Features:**
+- Blog name input (2-50 chars)
+- Subdomain input with validation (3-30 chars, alphanumeric + hyphens)
+- Real-time availability check (debounced)
+- URL preview (e.g., "https://myblog.pint.im")
+- Reserved subdomain validation
+
+---
+
+### Task 3.4: Create Onboarding API
+
+**Status:** ✅ Done
+
+**Description:**
+Create API endpoints for checking subdomain availability and completing onboarding.
+
+**Files Created:**
+- `src/app/api/onboarding/check-subdomain/route.ts` - GET endpoint
+- `src/app/api/onboarding/complete/route.ts` - POST endpoint
+
+**Endpoints:**
+- `GET /api/onboarding/check-subdomain?subdomain=x` - Returns `{ available: boolean }`
+- `POST /api/onboarding/complete` - Creates tenant, links user, creates default widgets
+
+---
+
+### Task 3.5: Create Public Blog Route Structure
+
+**Status:** ✅ Done
+
+**Description:**
+Create the route structure for public blog pages that will be rendered for subdomain requests.
+
+**Files Created:**
+- `src/app/(blog)/layout.tsx` - Root blog layout
+- `src/app/(blog)/[subdomain]/layout.tsx` - Tenant resolution, 404 handling
+- `src/app/(blog)/[subdomain]/page.tsx` - Blog home (post list)
+- `src/app/(blog)/[subdomain]/[slug]/page.tsx` - Individual post page
+
+**Files Modified:**
+- `src/lib/db/queries/posts.ts` - Added select fields to `getPublishedPostsByTenant`
+
+---
+
+### Task 3.6: Add Redirect Logic for Onboarding
+
+**Status:** ✅ Done
+
+**Description:**
+Complete the redirect logic to ensure:
+- Non-onboarded users are redirected to `/onboarding`
+- Onboarded users at `/onboarding` are redirected to `/dashboard`
+
+**Files Created:**
+- `src/app/api/auth/onboarding-status/route.ts` - Onboarding status endpoint
+
+**Files Modified:**
+- `src/middleware.ts` - Added `/api/onboarding(.*)` and `/api/auth(.*)` to public routes
+- `src/app/(dashboard)/dashboard/page.tsx` - Added onboarding check and redirect
+
+---
+
+## Phase 4-17: [Additional Phases]
+
+> **Note:** Phases 4-17 follow the same detailed structure. Each task includes:
 > - Status marker
 > - Description
 > - Context explaining why
@@ -1246,7 +1370,6 @@ export async function requireTenant() {
 > - Verification steps
 
 **Remaining Phases:**
-- Phase 3: Multi-Tenancy & Routing
 - Phase 4: Core API Routes
 - Phase 5: Media Storage (Cloudflare R2)
 - Phase 6: UI Component Library

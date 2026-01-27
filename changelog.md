@@ -14,6 +14,39 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ---
 
+## [0.3.0] - 2026-01-27
+
+### Added
+- Multi-tenant subdomain routing (`myblog.pint.im` → tenant's blog)
+- Tenant resolution utilities (`src/lib/tenant/`)
+  - `extractSubdomain()` - Parse subdomain from hostname
+  - `resolveTenantFromSubdomain()` - Database lookup
+  - `resolveTenantFromCustomDomain()` - Custom domain resolution
+  - `checkSubdomainAvailability()` - Availability check
+- Reserved subdomains list (www, app, api, admin, etc.)
+- Development testing support via `?subdomain=` query parameter
+- Onboarding system for new users:
+  - `/onboarding` page with blog name and subdomain form
+  - Real-time subdomain availability check
+  - Zod validation schema for onboarding
+  - React Hook Form integration
+- Onboarding API endpoints:
+  - `GET /api/onboarding/check-subdomain` - Availability check
+  - `POST /api/onboarding/complete` - Create tenant and link user
+  - `GET /api/auth/onboarding-status` - Check onboarding status
+- Public blog routes:
+  - `/(blog)/[subdomain]` - Blog homepage with post list
+  - `/(blog)/[subdomain]/[slug]` - Individual post page
+- Dashboard protection with onboarding redirect
+- Dependencies: `react-hook-form`, `@hookform/resolvers`
+
+### Changed
+- Middleware updated for subdomain detection and URL rewriting
+- API routes (`/api/onboarding/*`, `/api/auth/*`) marked as public for custom auth handling
+- `getPublishedPostsByTenant()` now returns select fields for blog listing
+
+---
+
 ## [0.2.0] - 2026-01-27
 
 ### Added
