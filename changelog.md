@@ -12,6 +12,36 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Initial project documentation (PRD, Architecture, ERD)
 - Claude Code configuration (`claude.md`, `/remember` command)
 
+---
+
+## [0.2.0] - 2026-01-27
+
+### Added
+- Clerk authentication integration (`@clerk/nextjs`)
+- Sign-in and sign-up pages with Clerk components
+- Authentication middleware for route protection
+- Clerk webhook handler with svix signature verification
+- User created/deleted webhook handlers
+- Auth utilities (`getCurrentUser`, `requireUser`, `getCurrentTenant`, `requireTenant`)
+- Tier-based permissions system (`TIER_FEATURES`, `canAccessFeature`, `getFeatureLimits`)
+- Onboarding support: User.tenantId now nullable, added `onboardingComplete` field
+
+### Changed
+- User model: `tenantId` changed from required to optional (for onboarding flow)
+
+---
+
+## [0.1.0] - 2026-01-27
+
+### Added
+- Neon PostgreSQL database setup
+- Prisma ORM configuration with singleton client
+- Complete database schema:
+  - Enums: `Tier`, `PostStatus`, `PageStatus`, `WallOfLoveStatus`
+  - Models: `Tenant`, `User`, `Post`, `Page`, `Widget`, `Like`, `WallOfLove`, `Subscriber`, `MediaFile`, `ApiKey`, `PageView`
+- Database utility functions (queries and mutations for tenants, posts, pages)
+- Composite indexes for multi-tenant queries
+
 ### Changed
 
 ### Fixed
