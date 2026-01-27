@@ -986,7 +986,7 @@ export default function SignInPage() {
 
 ### Task 2.5: Set Up Clerk Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create webhook endpoint to handle Clerk events (user created, deleted).
@@ -1067,7 +1067,7 @@ npm install svix
 
 ### Task 2.6: Handle User Created Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Implement user.created webhook handler to create tenant and user.
@@ -1141,7 +1141,7 @@ if (evt.type === 'user.created') {
 
 ### Task 2.7: Handle User Deleted Webhook
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Implement user.deleted webhook handler to clean up data.
@@ -1182,7 +1182,7 @@ if (evt.type === 'user.deleted') {
 
 ### Task 2.8: Create Auth Utility Functions
 
-**Status:** ⬜ Pending
+**Status:** ✅ Done
 
 **Description:**
 Create helper functions for getting current user and tenant.
