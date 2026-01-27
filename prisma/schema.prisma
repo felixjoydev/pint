@@ -1,0 +1,235 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum Tier {
+  free
+  pro
+  max
+  lifetime
+}
+
+enum PostStatus {
+  draft
+  published
+}
+
+enum PageStatus {
+  draft
+  published
+}
+
+enum WallOfLoveStatus {
+  pending
+  approved
+  rejected
+}
+
+// ============================================
+// Models
+// ============================================
+
+model Tenant {
+  id                   String    @id @default(uuid())
+  subdomain            String    @unique
+  customDomain         String?   @unique @map("custom_domain")
+  settings             Json      @default("{}")
+  tier                 Tier      @default(free)
+  stripeCustomerId     String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  blogPassword         String?   @map("blog_password")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  users       User[]
+  posts       Post[]
+  pages       Page[]
+  widgets     Widget[]
+  wallOfLove  WallOfLove[]
+  subscribers Subscriber[]
+  mediaFiles  MediaFile[]
+  apiKeys     ApiKey[]
+  pageViews   PageView[]
+
+  @@map("tenants")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  clerkId   String   @unique @map("clerk_id")
+  email     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  tenantId      String     @map("tenant_id")
+  slug          String
+  title         String
+  content       Json
+  excerpt       String?
+  featuredImage String?    @map("featured_image")
+  status        PostStatus @default(draft)
+  password      String?
+  publishedAt   DateTime?  @map("published_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  likes     Like[]
+  pageViews PageView[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, status])
+  @@index([tenantId, publishedAt])
+  @@map("posts")
+}
+
+model Page {
+  id        String     @id @default(uuid())
+  tenantId  String     @map("tenant_id")
+  slug      String
+  title     String
+  content   Json
+  showInNav Boolean    @default(true) @map("show_in_nav")
+  navOrder  Int?       @map("nav_order")
+  status    PageStatus @default(draft)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  pageViews PageView[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, status])
+  @@map("pages")
+}
+
+model Widget {
+  id           String  @id @default(uuid())
+  tenantId     String  @map("tenant_id")
+  type         String
+  enabled      Boolean @default(false)
+  config       Json    @default("{}")
+  displayOrder Int     @default(0) @map("display_order")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("widgets")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  ipHash    String   @map("ip_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, ipHash])
+  @@index([postId])
+  @@map("likes")
+}
+
+model WallOfLove {
+  id        String           @id @default(uuid())
+  tenantId  String           @map("tenant_id")
+  name      String
+  email     String
+  message   String
+  avatarUrl String?          @map("avatar_url")
+  status    WallOfLoveStatus @default(pending)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+  @@map("wall_of_love")
+}
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  email     String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@map("subscribers")
+}
+
+model MediaFile {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  filename  String
+  url       String
+  size      Int
+  mimeType  String   @map("mime_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("media_files")
+}
+
+model ApiKey {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  provider     String
+  encryptedKey String   @map("encrypted_key")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+  @@map("api_keys")
+}
+
+model PageView {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  postId    String?  @map("post_id")
+  pageId    String?  @map("page_id")
+  path      String
+  referrer  String?
+  country   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  post   Post?  @relation(fields: [postId], references: [id], onDelete: SetNull)
+  page   Page?  @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@index([postId])
+  @@index([pageId])
+  @@map("page_views")
+}

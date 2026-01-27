@@ -82,3 +82,5 @@ temp/
 # Misc
 *.pem
 .npmrc
+
+/src/generated/prisma

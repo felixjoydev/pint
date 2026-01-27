@@ -129,4 +129,5 @@ npm run db:studio    # Open Prisma Studio
 
 ## Regression Notes
 
-<!-- Add learnings here to prevent repeat mistakes -->
+- [Other] Always plan and get approval before executing any task from plan.md
+- [Test] Complete ALL verification steps in plan.md before marking task as done
