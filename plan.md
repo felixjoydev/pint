@@ -1722,9 +1722,91 @@ Create a Cloudflare Worker that transforms images on-demand (resize, WebP conver
 
 ---
 
-## Phase 6-17: [Additional Phases]
+## Phase 6: UI Component Library ✅ Done
 
-> **Note:** Phases 6-17 follow the same detailed structure. Each task includes:
+**Context:** Build a comprehensive UI component library using Radix Primitives with custom Tailwind styling, plus a theme system supporting independent font and color selection.
+
+**Dependencies:** Phase 5 Complete
+
+---
+
+### Task 6.1-6.30: UI Components & Theme System
+
+**Status:** ✅ Done
+
+**Completed:**
+- Installed Radix UI primitives (14 packages) and utilities (CVA, clsx, tailwind-merge, zustand, framer-motion, lucide-react)
+- Created `cn()` utility for Tailwind class merging
+- Implemented theme system:
+  - 4 font options (serif, sans, mono, rounded)
+  - 6 color themes (default, ocean, forest, sunset, lavender, midnight)
+  - Light/dark mode with system preference
+  - Zustand store with localStorage persistence
+  - ThemeProvider and useTheme hook
+- Built form components: Button, Input, Textarea, Label, Checkbox, Switch, Separator
+- Built overlay components: Dialog, AlertDialog, Popover, Tooltip, Select, DropdownMenu
+- Built display components: Card, Badge, Avatar, Tabs, Spinner, Skeleton
+- Built toast system: Toast, Toaster, useToast hook
+- Built form integration: React Hook Form components
+- Created barrel exports (`src/components/ui/index.ts`)
+- Added 185 component tests
+
+**Verification Results:**
+- Tests: ✅ 536 passing
+- TypeScript: ✅ No errors
+- ESLint: ✅ No errors
+- Build: ✅ Success
+
+---
+
+## Phase 6.5: UI Component Restyling ✅ Done
+
+**Context:** Restyle all UI components to match minimal, stripped-out design aesthetic based on design reference images.
+
+**Dependencies:** Phase 6 Complete
+**Branch:** `feature/ui-components` (continued)
+
+---
+
+### Task 6.5.1: Design System Update
+
+**Status:** ✅ Done
+
+**Design Principles Applied:**
+- 4px grid spacing system (all spacing multiples of 4)
+- Minimal borders (`#f0f0f0`)
+- Coral accent color (`#E86A4C`)
+- No shadows (except minimal on dialogs)
+- Rounded corners: `rounded-lg` (8px) for buttons/inputs, `rounded` (4px) for checkboxes
+- Theme system preserved (4 fonts, 6 color themes)
+
+**Files Modified:**
+- `src/app/globals.css` - Updated CSS variables
+- `src/lib/theme/constants.ts` - Updated default theme colors
+- All components in `src/components/ui/` - Restyled to match design
+- 7 test files - Updated expectations for new styling
+
+**Key Component Changes:**
+- **Button:** Coral primary, `rounded-lg`, simplified focus rings, h-8 (sm) / h-12 (lg)
+- **Tabs:** Underline style with border-b-2, no pill backgrounds
+- **Badge:** Added `accent` variant (coral text, uppercase, no background)
+- **Input/Textarea:** `rounded-lg`, focus shows primary border color
+- **Switch/Checkbox:** Coral when checked
+- **Card:** Removed shadow
+- **Dialog/AlertDialog:** Overlay opacity reduced to 50%
+- **Toast:** Success uses primary color
+
+**Verification Results:**
+- Tests: ✅ 536 passing
+- TypeScript: ✅ No errors
+- ESLint: ✅ No errors
+- Build: ✅ Success
+
+---
+
+## Phase 7-17: [Additional Phases]
+
+> **Note:** Phases 7-17 follow the same detailed structure. Each task includes:
 > - Status marker
 > - Description
 > - Context explaining why
@@ -1733,7 +1815,6 @@ Create a Cloudflare Worker that transforms images on-demand (resize, WebP conver
 > - Verification steps
 
 **Remaining Phases:**
-- Phase 6: UI Component Library
 - Phase 7: Tiptap Editor
 - Phase 8: Dashboard
 - Phase 9: Public Blog
