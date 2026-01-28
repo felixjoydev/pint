@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tiptap Editor Styles */
+@import '../components/editor/styles/editor.css';
+
 :root {
   /* Backgrounds */
   --background: #ffffff;

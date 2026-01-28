@@ -14,6 +14,95 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ---
 
+## [0.7.0] - 2026-01-28
+
+### Added
+- Tiptap rich text editor with Medium-style editing experience
+  - `src/components/editor/tiptap-editor.tsx` - Main editor component
+  - `src/components/editor/editor-content.tsx` - EditorContent wrapper with styling
+  - `src/components/editor/save-status.tsx` - Save status indicator (idle/saving/saved/error)
+- Tiptap extensions configuration
+  - StarterKit with customized options (Heading levels 1-3, CodeBlock disabled for custom)
+  - Placeholder text support
+  - Link with autolink detection
+  - Image with alt text support
+  - CodeBlock with lowlight syntax highlighting (common languages)
+  - YouTube/Vimeo video embeds
+  - Table with resizable columns
+  - Underline extension
+- Bubble Menu for inline formatting
+  - Bold, Italic, Underline, Strikethrough
+  - Link editing popover with add/remove
+  - Heading toggles (H1, H2, H3)
+  - Quote toggle
+  - Dark background with coral accent for active states
+- Slash Commands system (Notion-style)
+  - 12 block insertion commands: heading, subheading, small-heading, text, bullet, numbered, quote, code, image, video, divider, table
+  - Triggered by "/" character
+  - Keyboard navigation (ArrowUp, ArrowDown, Enter, Escape)
+  - Searchable by title, description, keywords
+  - tippy.js for positioning
+- Image upload integration
+  - `useImageUpload` hook with R2 presigned URL flow
+  - ImageDialog with upload tab (drag-drop, file picker) and URL tab
+  - File validation (jpeg, png, gif, webp; max 10MB)
+  - Progress indicator during upload
+- Video embed support
+  - `parseVideoUrl()` for YouTube and Vimeo URLs
+  - VideoDialog with URL input and preview
+  - Privacy-enhanced embeds (youtube-nocookie.com)
+- Auto-save system
+  - `useAutoSave` hook with debounced saving (default 5000ms)
+  - localStorage backup for crash recovery
+  - Save status indicator with states: idle, saving, saved, error
+  - `saveNow()` for manual save
+  - `recoverFromLocalStorage()` for recovery
+- Word count hook
+  - `useWordCount` returns wordCount and characterCount
+  - Updates in real-time as content changes
+- Editor Zustand store (`src/stores/editor-store.ts`)
+  - Editor instance reference
+  - Content state
+  - Selection state (hasSelection, selectedText)
+  - Word/character counts
+  - Dialog states (image, video)
+  - Save status
+- Editor types (`src/types/editor.ts`)
+  - EditorContentType (JSONContent)
+  - EditorDocument interface
+  - SaveStatus type
+- Editor validation schema (`src/lib/validations/editor.ts`)
+  - jsonContentSchema for Tiptap JSON validation
+  - postContentSchema with title, content, excerpt, featuredImage
+  - editorSaveSchema for save payloads
+- Editor CSS styles (`src/components/editor/styles/editor.css`)
+  - ProseMirror styling matching design system
+  - Placeholder, headings, blockquote, code blocks, lists, tables
+  - Syntax highlighting with lowlight (light/dark mode)
+  - Image selection ring, YouTube embeds, horizontal rules
+- 122 new tests across 14 test files
+  - Store tests, extension tests, bubble menu tests
+  - Slash command tests, hook tests, dialog tests
+  - Integration tests, validation tests
+- Total: 536+ tests passing
+
+### Dependencies
+- `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit`
+- `@tiptap/extension-bubble-menu`, `@tiptap/extension-placeholder`
+- `@tiptap/extension-link`, `@tiptap/extension-image`
+- `@tiptap/extension-code-block-lowlight`, `@tiptap/extension-horizontal-rule`
+- `@tiptap/extension-table`, `@tiptap/extension-table-row`
+- `@tiptap/extension-table-cell`, `@tiptap/extension-table-header`
+- `@tiptap/extension-underline`, `@tiptap/extension-youtube`
+- `lowlight`, `highlight.js`
+- `use-debounce`, `tippy.js`
+
+### Changed
+- Updated `globals.css` to import editor styles
+- Editor uses CSS variables for theming (--primary, --border, --secondary, etc.)
+
+---
+
 ## [0.6.5] - 2026-01-27
 
 ### Changed
