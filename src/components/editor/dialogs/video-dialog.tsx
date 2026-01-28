@@ -15,8 +15,8 @@ import { AlertCircle, Video } from 'lucide-react'
 
 interface VideoDialogProps {
   open: boolean
-  onOpenChange: (open: boolean) => void
-  onInsert: (embedUrl: string) => void
+  onOpenChange: (_open: boolean) => void
+  onInsert: (_embedUrl: string) => void
 }
 
 export function VideoDialog({ open, onOpenChange, onInsert }: VideoDialogProps) {

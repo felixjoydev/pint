@@ -58,7 +58,7 @@ describe('createDropPasteHandler', () => {
     const event = createMockDragEvent([file])
     const view = createMockView(100)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const handleDrop = plugin.props.handleDrop!.bind(plugin)
     const result = handleDrop(view as any, event, null as any, false)
 
@@ -77,7 +77,7 @@ describe('createDropPasteHandler', () => {
     const event = createMockDragEvent([file])
     const view = createMockView(100)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const handleDrop = plugin.props.handleDrop!.bind(plugin)
     const result = handleDrop(view as any, event, null as any, false)
 
@@ -100,7 +100,7 @@ describe('createDropPasteHandler', () => {
     const event = createMockClipboardEvent([item as unknown as DataTransferItem])
     const view = createMockView(0)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const handlePaste = plugin.props.handlePaste!.bind(plugin)
     const result = handlePaste(view as any, event, null as any)
 
@@ -123,7 +123,7 @@ describe('createDropPasteHandler', () => {
     const event = createMockClipboardEvent([item as unknown as DataTransferItem])
     const view = createMockView(0)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const handlePaste = plugin.props.handlePaste!.bind(plugin)
     const result = handlePaste(view as any, event, null as any)
 

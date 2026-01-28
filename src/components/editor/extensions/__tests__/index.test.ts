@@ -37,7 +37,7 @@ describe('createEditorExtensions', () => {
     const extensions = createEditorExtensions({ placeholder: customPlaceholder })
     const placeholderExt = extensions.find((ext) => ext.name === 'placeholder')
     expect(placeholderExt).toBeDefined()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     expect((placeholderExt?.options as any).placeholder).toBe(customPlaceholder)
   })
 })

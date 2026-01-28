@@ -32,7 +32,7 @@ describe('useWordCount', () => {
 
   it('counts words correctly', () => {
     const mockEditor = createMockEditor('Hello world, this is a test')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { result } = renderHook(() => useWordCount(mockEditor as any))
 
     expect(result.current.wordCount).toBe(6)
@@ -40,7 +40,7 @@ describe('useWordCount', () => {
 
   it('counts characters correctly', () => {
     const mockEditor = createMockEditor('Hello')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { result } = renderHook(() => useWordCount(mockEditor as any))
 
     expect(result.current.characterCount).toBe(5)
@@ -48,7 +48,7 @@ describe('useWordCount', () => {
 
   it('handles empty content', () => {
     const mockEditor = createMockEditor('')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { result } = renderHook(() => useWordCount(mockEditor as any))
 
     expect(result.current.wordCount).toBe(0)
@@ -57,7 +57,7 @@ describe('useWordCount', () => {
 
   it('handles whitespace-only content', () => {
     const mockEditor = createMockEditor('   \n\t  ')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { result } = renderHook(() => useWordCount(mockEditor as any))
 
     expect(result.current.wordCount).toBe(0)
@@ -66,7 +66,7 @@ describe('useWordCount', () => {
 
   it('updates on content change', () => {
     const mockEditor = createMockEditor('Hello')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { result } = renderHook(() => useWordCount(mockEditor as any))
 
     expect(result.current.wordCount).toBe(1)
@@ -83,7 +83,7 @@ describe('useWordCount', () => {
 
   it('unsubscribes on unmount', () => {
     const mockEditor = createMockEditor('Hello')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const { unmount } = renderHook(() => useWordCount(mockEditor as any))
 
     unmount()

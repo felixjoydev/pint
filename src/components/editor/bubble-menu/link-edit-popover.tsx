@@ -10,7 +10,7 @@ import { Link2, Trash2 } from 'lucide-react'
 interface LinkEditPopoverProps {
   isActive: boolean
   currentUrl: string
-  onSetLink: (url: string) => void
+  onSetLink: (_url: string) => void
   onUnsetLink: () => void
 }
 

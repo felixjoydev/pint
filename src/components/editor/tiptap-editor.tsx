@@ -22,8 +22,8 @@ interface TiptapEditorProps {
   className?: string
   editable?: boolean
   autoSaveDelay?: number
-  onSave?: (content: EditorContentType) => Promise<void>
-  onChange?: (content: EditorContentType) => void
+  onSave?: (_content: EditorContentType) => Promise<void>
+  onChange?: (_content: EditorContentType) => void
 }
 
 export function TiptapEditor({

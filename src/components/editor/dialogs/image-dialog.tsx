@@ -17,8 +17,8 @@ import { cn } from '@/lib/utils/cn'
 
 interface ImageDialogProps {
   open: boolean
-  onOpenChange: (open: boolean) => void
-  onInsert: (url: string, alt?: string) => void
+  onOpenChange: (_open: boolean) => void
+  onInsert: (_url: string, _alt?: string) => void
 }
 
 export function ImageDialog({ open, onOpenChange, onInsert }: ImageDialogProps) {

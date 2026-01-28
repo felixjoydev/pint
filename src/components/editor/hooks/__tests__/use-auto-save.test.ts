@@ -27,7 +27,7 @@ describe('useAutoSave', () => {
   })
 
   it('saves to localStorage immediately on content change', () => {
-    const { result, rerender } = renderHook(
+    const { rerender } = renderHook(
       ({ content }) => useAutoSave(content, { documentId: 'test-doc' }),
       { initialProps: { content: null as EditorContentType | null } }
     )
@@ -51,7 +51,7 @@ describe('useAutoSave', () => {
     vi.useRealTimers() // Use real timers for this test
     const onSave = vi.fn().mockResolvedValue(undefined)
 
-    const { result, rerender } = renderHook(
+    const { rerender } = renderHook(
       ({ content }) => useAutoSave(content, { documentId: 'test-doc', delay: 50, onSave }),
       { initialProps: { content: null as EditorContentType | null } }
     )

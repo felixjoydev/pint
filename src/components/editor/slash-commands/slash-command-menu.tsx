@@ -7,7 +7,7 @@ import type { SlashCommand } from './commands'
 interface SlashCommandMenuProps {
   commands: SlashCommand[]
   selectedIndex: number
-  onSelect: (index: number) => void
+  onSelect: (_index: number) => void
 }
 
 export function SlashCommandMenu({ commands, selectedIndex, onSelect }: SlashCommandMenuProps) {

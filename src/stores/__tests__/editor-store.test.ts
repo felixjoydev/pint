@@ -21,7 +21,7 @@ describe('useEditorStore', () => {
   })
 
   it('setEditor updates editor reference', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const mockEditor = { isEditable: true } as any
 
     useEditorStore.getState().setEditor(mockEditor)

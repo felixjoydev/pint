@@ -21,7 +21,7 @@ export interface SlashCommand {
   description: string
   icon: LucideIcon
   keywords: string[]
-  action: (editor: Editor | unknown) => void
+  action: (_editor: Editor) => void
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [

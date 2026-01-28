@@ -9,8 +9,8 @@ interface UploadResult {
 }
 
 interface UseImageUploadOptions {
-  onSuccess?: (result: UploadResult) => void
-  onError?: (error: Error) => void
+  onSuccess?: (_result: UploadResult) => void
+  onError?: (_error: Error) => void
 }
 
 export function useImageUpload(options: UseImageUploadOptions = {}) {

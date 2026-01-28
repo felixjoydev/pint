@@ -5,8 +5,8 @@ import { isImageMimeType } from '@/lib/storage/constants'
 export const dropPastePluginKey = new PluginKey('dropPasteHandler')
 
 interface DropPasteHandlerOptions {
-  onImageDrop: (file: File, pos: number) => void
-  onImagePaste: (file: File) => void
+  onImageDrop: (_file: File, _pos: number) => void
+  onImagePaste: (_file: File) => void
 }
 
 export function createDropPasteHandler(options: DropPasteHandlerOptions): Plugin {

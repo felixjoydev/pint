@@ -7,7 +7,7 @@ import type { SaveStatus, EditorContentType } from '@/types/editor'
 interface UseAutoSaveOptions {
   documentId?: string
   delay?: number
-  onSave?: (content: EditorContentType) => Promise<void>
+  onSave?: (_content: EditorContentType) => Promise<void>
 }
 
 interface UseAutoSaveReturn {

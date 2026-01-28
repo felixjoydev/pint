@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { SLASH_COMMANDS, filterCommands, type SlashCommand } from '../commands'
+import { SLASH_COMMANDS, filterCommands } from '../commands'
 
 describe('SLASH_COMMANDS', () => {
   it('has all required commands (12 commands)', () => {
@@ -57,7 +57,7 @@ describe('SLASH_COMMANDS', () => {
     SLASH_COMMANDS.forEach((command) => {
       // Should not throw
       expect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        
         command.action(mockEditor as any)
       }).not.toThrow()
     })
